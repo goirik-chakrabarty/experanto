@@ -31,6 +31,14 @@ from .utils import add_behavior_as_channels, replace_nan_with_batch_mean
 # see .configs.py for the definition of DEFAULT_MODALITY_CONFIG
 DEFAULT_MODALITY_CONFIG = dict()
 
+CALLABLE_REGISTRY = {}
+
+def register_callable(key):
+    """Decorator to register a function in the CALLABLE_REGISTRY."""
+    def decorator(func):
+        CALLABLE_REGISTRY[key] = func
+        return func
+    return decorator
 
 class SimpleChunkedDataset(Dataset):
     def __init__(
@@ -345,6 +353,31 @@ class ChunkDataset(Dataset):
             # print(f"DEBUG: callable(filter_config) returned True for type {type(filter_config)}. Returning config directly.")
             return filter_config
 
+        if (
+            isinstance(filter_config, (dict, DictConfig))
+            and "__key__" in filter_config
+        ):
+            # If the filter_config has a key __key__, assume it's a registered callable in the registry
+            if filter_config["__key__"] in CALLABLE_REGISTRY:
+                # Use the factory function from the registry
+                factory_func = CALLABLE_REGISTRY[filter_config["__key__"]]
+                
+                # Prepare arguments for the factory function (excluding special keys)
+                args = {
+                    k: v
+                    for k, v in filter_config.items()
+                    if k not in ("__key__")
+                }
+
+                # Instantiate the implementation function with its arguments
+                implementation_func = factory_func(**args)
+
+                return implementation_func
+            else:
+                raise ValueError(
+                    f"Filter config string '{filter_config}' not found in CALLABLE_REGISTRY {CALLABLE_REGISTRY}."
+                )
+
         # Check if it's a config that needs instantiation
         if (
             isinstance(filter_config, (dict, DictConfig))
@@ -390,6 +423,7 @@ class ChunkDataset(Dataset):
                     "filters"
                 ].items():
                     # Get the final callable filter function
+                    print(">>>>>>>>>>>>>>>>>>>>>>Here",filter_config, device)
                     filter_function = self._get_callable_filter(filter_config)
                     valid_intervals_ = filter_function(device_=device)
                     if visualize:
