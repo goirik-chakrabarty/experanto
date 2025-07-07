@@ -9,6 +9,7 @@ from experanto.intervals import (
 
 from experanto.datasets import register_callable
 
+
 @register_callable("filter1")
 def nan_filter(vicinity=0.05):
     def implementation(device_: Interpolator, vicinity=vicinity):
