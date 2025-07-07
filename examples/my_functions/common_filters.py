@@ -1,13 +1,14 @@
 import numpy as np
 
+from experanto.datasets import (
+    register_callable,  # need to import this to register the function
+)
 from experanto.interpolators import Interpolator
 from experanto.intervals import (
     TimeInterval,
     find_complement_of_interval_array,
     uniquefy_interval_array,
 )
-
-from experanto.datasets import register_callable
 
 
 @register_callable("filter1")
