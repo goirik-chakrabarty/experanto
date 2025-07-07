@@ -423,7 +423,6 @@ class ChunkDataset(Dataset):
                     "filters"
                 ].items():
                     # Get the final callable filter function
-                    print(">>>>>>>>>>>>>>>>>>>>>>Here",filter_config, device)
                     filter_function = self._get_callable_filter(filter_config)
                     valid_intervals_ = filter_function(device_=device)
                     if visualize:
