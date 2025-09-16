@@ -58,14 +58,19 @@ class Experiment:
                 dev = instantiate(
                     interp_conf, root_folder=d, cache_data=self.cache_data
                 )
+                # Check if instantiated object is proper Interpolator
+                if not isinstance(dev, Interpolator):
+                    raise ValueError(
+                        "Please provide an Interpolator which inherits from experantos Interpolator class."
+                    )
 
-            elif isinstance(interp_conf, (dict, DictConfig)):
-                # Default interpolator config → use factory
-                dev = Interpolator.create(d, cache_data=self.cache_data, **interp_conf)
+            elif isinstance(interp_conf, Interpolator):
+                # Already instantiated Interpolator
+                dev = interp_conf
 
             else:
-                # Already instantiated object (regardless of class)
-                dev = interp_conf
+                # Default back to original logic
+                dev = Interpolator.create(d, cache_data=self.cache_data, **interp_conf)
 
             self.devices[d.name] = dev
             self.start_time = dev.start_time
