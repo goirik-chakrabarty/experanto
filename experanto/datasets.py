@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import functools
 import importlib
+import inspect
 import json
 import os
 from collections import namedtuple
@@ -416,7 +417,17 @@ class ChunkDataset(Dataset):
                 ].items():
                     # Get the final callable filter function
                     filter_function = self._get_callable_filter(filter_config)
-                    valid_intervals_ = filter_function(device_=device)
+                    # Inspect the filter function's signature
+                    sig = inspect.signature(filter_function)
+
+                    # Making session aware filter functions session_path
+                    if "session_path" in sig.parameters:
+                        valid_intervals_ = filter_function(
+                            device_=device, session_path=self.root_folder
+                        )
+                    else:
+                        valid_intervals_ = filter_function(device_=device)
+
                     if visualize:
                         print(f"modality: {modality}, filter: {filter_name}")
                         visualization_string = get_stats_for_valid_interval(
