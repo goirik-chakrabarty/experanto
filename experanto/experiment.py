@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import re
+import warnings
 from collections import namedtuple
 from collections.abc import Sequence
 from pathlib import Path
@@ -39,6 +40,7 @@ class Experiment:
 
     def _load_devices(self) -> None:
         # Populate devices by going through subfolders
+        # Assumption: blocks are sorted by start time
         device_folders = [d for d in self.root_folder.iterdir() if (d.is_dir())]
 
         for d in device_folders:
@@ -70,6 +72,9 @@ class Experiment:
 
             else:
                 # Default back to original logic
+                warnings.warn(
+                    "Falling back to original Interpolator creation logic.", UserWarning
+                )
                 dev = Interpolator.create(d, cache_data=self.cache_data, **interp_conf)
 
             self.devices[d.name] = dev
