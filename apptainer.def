@@ -30,7 +30,8 @@ From: nvcr.io/nvidia/pytorch:25.03-py3
             opencv_python==4.11.0.86 \
             PyYAML==6.0.2 \
             jupyterlab \
-            tqdm 
+            tqdm \
+            h5py
 
 %labels
     Author Goirik
