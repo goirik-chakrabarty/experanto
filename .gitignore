@@ -163,3 +163,4 @@ cython_debug/
 
 *.sif
 *.bak
+my_dataset_with_meta
